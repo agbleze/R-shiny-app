@@ -1,0 +1,33 @@
+---
+title: "shiny-markdown-Gapminder"
+author: "Linus"
+date: "6/19/2021"
+output: html_document
+runtime: shiny
+---
+
+```{r, echo = FALSE, message = FALSE}
+#load libraries to be used
+library(tidyverse)
+library(gapminder)
+
+inputPanel(
+  checkboxInput("linearn", label = "Check the box to add a trend line?", value = FALSE)
+)
+
+# draw the plot
+renderPlot({
+  mapPlotArea = gapminder %>% ## assigns gapminder data to the variable mapPlotArea and pipe it
+    filter(year < 2000) %>%   ## returns rows with year less than 2000
+    group_by(continent, year) %>%  ## groups the data based on the parameters
+    summarise(PerCapita_Gross_Domestic_Product = mean(gdpPercap)) %>%  ## calculate the mean of gdpPercap
+    ggplot(aes(x = year, y = PerCapita_Gross_Domestic_Product,  ### plots  a line graph  
+               group = continent, colour = continent)) +
+    geom_line() +theme_dark()
+  if(input$linearn) {               ### update the plot with a trend line when the checkbox is clicked
+    mapPlotArea = mapPlotArea + geom_smooth(method = "loess")
+  }
+  print(mapPlotArea)  #### display the graph
+})
+```
+
