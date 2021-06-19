@@ -1,2 +1,34 @@
-library (shiny)
+#library (shiny)
+#library(gapminder)
+
+---
+title: "shiny-markdown-Gapminder"
+author: "Linus"
+date: "6/19/2021"
+output: html_document
+runtime: shiny
+---
+
+```{r, echo = FALSE, message = FALSE}
+library(tidyverse)
 library(gapminder)
+
+inputPanel(
+  checkboxInput("linear", label = "Add trend line?", value = FALSE)
+)
+
+# draw the plot
+renderPlot({
+  thePlot = gapminder %>%
+    filter(year > 1960) %>%
+    group_by(continent, year) %>%
+    summarise(meanLife = mean(lifeExp)) %>%
+    ggplot(aes(x = year, y = meanLife, 
+               group = continent, colour = continent)) +
+    geom_line()
+  if(input$linear) {
+    thePlot = thePlot + geom_smooth(method = "lm")
+  }
+  print(thePlot)
+})
+```
